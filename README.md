@@ -72,3 +72,60 @@ expect({ name: 'John' }).toBe({ name: 'John' });
 // Passes, the two objects are not identical but deeply equal
 expect({ name: 'John' }).toEqual({ name: 'John' });
 ```
+
+**custom matcher**
+```ts
+export const CustomMatcher: CustomMatcherFactories = {
+  isEqual: function (): CustomMatcher {
+      return {
+          compare: function <T>(actual: T, expected: T): CustomMatcherResult {
+
+              const passes = Object.is(actual, expected);
+
+              return {
+                  pass: passes,
+                  message: passes ? undefined: `${actual} is not equal to ${expected}`,
+              }
+          }
+      }
+  }
+};
+
+...
+
+beforeEach(() => {
+  jasmine.addMatchers(IsMatcher)
+});
+```
+
+## Repetitive setup
+Setup that is repeated over and over, so it should be defined once in a central place. 
+You could write a setup function and call it at the beginning of each spec. 
+Using Jasmine, you can declare code that is called before and after each spec, or before and after all specs.
+For this purpose, Jasmine provides four functions: **beforeEach**, **afterEach**, **beforeAll** and **afterAll**. 
+They are called inside of a describe block, just like it. They expect one parameter, a function that is called at the given stages.
+
+```ts 
+describe('Suite description', () => {
+  beforeAll(() => {
+    console.log('Called before all specs are run');
+  });
+  afterAll(() => {
+    console.log('Called after all specs are run');
+  });
+
+  beforeEach(() => {
+    console.log('Called before each spec is run');
+  });
+  afterEach(() => {
+    console.log('Called after each spec is run');
+  });
+
+  it('Spec 1', () => {
+    console.log('Spec 1');
+  });
+  it('Spec 2', () => {
+    console.log('Spec 2');
+  });
+});
+```
