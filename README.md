@@ -1,27 +1,74 @@
-# NgTesting
+# Angular Testing
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.2.
+## Creating a test suite
 
-## Development server
+Describe is a function that takes two parameters. A string with a human-readable name and a function containing the suite definition.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```ts
+describe('Suite description', () => {
+  /* … */
+});
+```
 
-## Code scaffolding
+Describe blocks can be nested to structure big suites and divide them into logical sections.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```ts
+describe('Suite description', () => {
+  describe('One aspect', () => {
+    /* … */
+  });
+  describe('Another aspect', () => {
+    /* … */
+  });
+});
+```
 
-## Build
+---
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Specifications
+It is a function that takes two parameters. The first parameter is a string with a human-readable description. The second parameter is a function containing the spec code.
 
-## Running unit tests
+```ts
+describe('Suite description', () => {
+  it('Spec description', () => {
+    /* … */
+  });
+  /* … more specs …  */
+});
+```
+The pronoun it refers to the code under test. it should be the subject of a human-readable sentence that asserts the behavior of the code under test.
+```ts
+it('increments the count', () => {
+  /* … */
+});
+it('resets the count', () => {
+  /* … */
+});
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+## Structure of the test
+Irrespective of the testing framework, the testing code typically consists of three phases: Arrange, Act and Assert.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Arrange is the preparation and setup phase. For example, the class under test is instantiated. Dependencies are set up. Spies and fakes are created.
+- Act is the phase where interaction with the code under test happens. For example, a method is called or an HTML element in the DOM is clicked.
+- Assert is the phase where the code behavior is checked and verified. For example, the actual output is compared to the expected output.
 
-## Further help
+## Expectations
+```ts
+const expectedValue = 5;
+const actualValue = add(2, 3);
+expect(actualValue).toBe(expectedValue);
+```
+### Matchers
+**toBe** is useful to compare primitive values like strings, numbers and booleans. For objects, toBe matches only if the actual and the expected value are the very same object.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+**toEqual** is useful for checking the deep equality of two objects.
+
+```ts
+// Fails, the two objects are not identical
+expect({ name: 'John' }).toBe({ name: 'John' });
+
+// Passes, the two objects are not identical but deeply equal
+expect({ name: 'John' }).toEqual({ name: 'John' });
+```
