@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { click, findEl } from 'src/tests/helpers';
 
 import { CounterComponent } from './counter.component';
 
@@ -23,36 +23,17 @@ describe('CounterComponent', () => {
   });
 
   it('should increment the count', () => {
-    const { debugElement } = fixture;
-    // Arrange: get reference to button
-    const incrementButton = debugElement.query(By.css('[data-testid="increment-button"]'));
-
-    // Act: Click on the increment button
-    incrementButton.triggerEventHandler('click', null);
-    // Rerender component
+    click(fixture, 'increment-button');
     fixture.detectChanges();
-
-    // Assert: Expect that the displayed count now reads “1”.
-    const countOutput = debugElement.query(
-      By.css('[data-testid="count"]')
-    );
-    expect(countOutput.nativeElement.textContent).toBe('1');
+    const count = findEl(fixture, 'count');
+    expect(count.nativeElement.textContent).toEqual("1");
   })
 
   it('decrements the count', () => {
-    const { debugElement } = fixture;
-    // Arrange: get reference to button
-    const decrementButton = debugElement.query(By.css('[data-testid="decrement-button"]'));
-
-    // Act: Click on the increment button
-    decrementButton.triggerEventHandler('click', null);
-    // Rerender component
+    click(fixture, 'decrement-button');
     fixture.detectChanges();
-  
-    // Assert: Expect that the displayed count now reads “-1”.
-    const countOutput = debugElement.query(
-      By.css('[data-testid="count"]')
-    );
-    expect(countOutput.nativeElement.textContent).toBe('-1');
+    const count = findEl(fixture, 'count');
+    expect(count.nativeElement.textContent).toEqual("-1");
   });
 });
+
