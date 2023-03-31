@@ -129,3 +129,28 @@ describe('Suite description', () => {
   });
 });
 ```
+
+
+## Faking/Mocking dependencies
+A fake implementation must have the *same shape* of the original. If the dependency is a function, the fake
+must have the *same signature*, meaning the same parameters and the same return value. If the dependency is an 
+object, the fake must have the *same public API*, meaning the same public methods and properties.
+The fake does *not need to be complete*, but sufficient enough to act as a replacement. 
+The fake needs to be equivalent to the original as far as the code under test is concerned, *not fully equal to the original*.
+
+### Creating a spy
+```ts
+const fetchSpy = jasmine.createSpy('fetch').and.returnValue(new Response(...));
+...
+// Using spy in assert
+expect(fetchSpy).toHaveBeenCalledWith('/todos');
+```
+
+### Spying on existing methods
+```ts
+spyOn(window, 'fetch').and.returnValue(new Response(...));
+...
+// Using spy in assert
+expect(window.fetch).toHaveBeenCalledWith('/todos');
+```
+

@@ -1,4 +1,4 @@
-/// <reference path="./../test.d.ts"/>
+/// <reference path="./../../test.d.ts"/>
 import CustomMatcherFactories = jasmine.CustomMatcherFactories;
 import CustomMatcher = jasmine.CustomMatcher;
 import CustomMatcherResult = jasmine.CustomMatcherResult;
@@ -23,7 +23,7 @@ export function add(x: number, y: number): number {
   return x + y;
 }
 
-describe("Add", () => {
+describe("Add using built in matchers", () => {
   it("2 + 3 should be 5", () => {
     expect(add(2, 3)).toBe(5);
   })
@@ -34,7 +34,7 @@ describe("Add", () => {
 });
 
 
-describe("Add using custom matcher", () => {
+describe("Add using custom matchers", () => {
   beforeEach(() => {
     jasmine.addMatchers(IsMatcher)
   });
