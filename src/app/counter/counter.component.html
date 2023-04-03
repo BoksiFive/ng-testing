@@ -8,6 +8,6 @@
 </p>
 
 <p>
-  <input type="number" #resetInput/>
-  <button (click)="reset(resetInput.valueAsNumber)">Reset</button>
+  <input type="number" #resetInput data-testid="reset-input"/>
+  <button (click)="reset(resetInput.valueAsNumber)" data-testid="reset-button">Reset</button>
 </p>

@@ -14,6 +14,7 @@ export function queryByCss<T>(
   if (!debugElement) {
     throw new Error(`queryByCss: Element with ${selector} not found`);
   }
+
   return debugElement;
 }
 
@@ -21,7 +22,7 @@ export function findEl<T>(
   fixture: ComponentFixture<T>,
   testId: string
 ): DebugElement {
-    return queryByCss<T>(fixture, testIdSelector(testId));
+  return queryByCss<T>(fixture, testIdSelector(testId));
 }
 
 export function click<T>(
@@ -47,4 +48,10 @@ export function makeClickEvent(
     cancelable: true,
     button: 0
   };
+}
+
+export function setInputValue<T>(fixture: ComponentFixture<T>, testId: string, value: string) {
+  const element = findEl(fixture, testId);
+  element.nativeElement.value = value;
+  element.nativeElement.dispatchEvent(new Event("input"));
 }
