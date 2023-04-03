@@ -14,7 +14,6 @@ export function queryByCss<T>(
   if (!debugElement) {
     throw new Error(`queryByCss: Element with ${selector} not found`);
   }
-
   return debugElement;
 }
 

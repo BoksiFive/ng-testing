@@ -197,3 +197,170 @@ ng test --include **/app.component.spec.ts
 ### **Other methods for debugging** 
 - console.log
 - debugger
+
+
+---
+<p>&nbsp;</p>
+
+## Testing components
+
+**Components**
+- renders the template into the HTML DOM
+- accepts data from parent (Inputs)
+- emits data to parent (Output)
+- reacts to users inputs
+- renders ng-content and ng-templates
+- uses routing information like the currently activated route
+- talks to the services
+
+
+**TestBed** 
+creates and configures an Angular environment so you can test particular application parts like Components and Services. The TestBed comes with a testing Module that is configured like normal Modules in your application: You can declare Components, Directives and Pipes, provide Services and other Injectables as well as import other Modules.
+
+```ts
+TestBed.configureTestingModule({
+  imports: [ /*… */ ],
+  declarations: [MyComponent],
+  providers: [ /*… */ ],
+});
+/* ... */
+
+// Compile all declared Components, Directives and Pipes
+TestBed.compileComponents();
+```
+
+## Rendering components
+**createComponent** returns a ComponentFixture, essentially a wrapper around the Component with useful testing tools. createComponent renders the Component into a div container element in the HTML DOM.
+
+```ts
+const fixture = TestBed.createComponent(MyComponent);
+```
+
+In our testing environment, there is no automatic change detection.
+Even with the default change detection strategy, a Component is not automatically rendered and re-rendered on updates.
+In testing code, we have to **trigger the change detection manually**.
+It allows us to test asynchronous behavior in a synchronous manner, which is much simpler.
+
+```
+fixture.detectChanges();
+```
+
+**TestBed and Jasmine**
+```ts
+describe('MyComponent', () => {
+  let fixture: ComponentFixture<MyComponent>;
+
+  /* 
+   Function is marked async because compileComponents is async operation.
+   To compile the Components, Angular needs to fetch external the template files referenced by templateUrl. 
+  */
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [MyComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyComponent);
+    fixture.detectChanges();
+  });
+
+  it('…', () => {
+    /* … */
+  });
+});
+```
+
+[**Component fixture**](https://angular.io/api/core/testing/ComponentFixture)
+In the context of Angular, the ComponentFixture holds the Component and provides a convenient interface to both the Component instance and the rendered DOM.The fixture references the Component instance via the componentInstance property.
+
+```ts
+const component = fixture.componentInstance;
+```
+
+[**Debug element**](https://angular.io/api/core/DebugElement)
+For accessing elements in the DOM, Angular has another abstraction: The DebugElement wraps the native DOM element. The fixture’s debugElement property returns the Component’s host element.
+The DebugElement offers handy properties like properties, attributes, classes and styles to examine the DOM element itself. The properties parent, children and childNodes help navigating in the DOM tree. They return DebugElements as well.
+
+```ts
+const { debugElement } = fixture;
+```
+
+**Querying the descendant elements
+```ts
+const { debugElement } = fixture;
+// Find the first h1 element
+const h1 = debugElement.query(By.css('h1'));
+// Find all elements with the class .my-class
+const debugElements = debugElement.queryAll(By.css('.my-class'));
+```
+
+Type and class selectors introduce a tight coupling between the test and the template. 
+HTML elements are picked for semantic reasons. Classes are picked mostly for styling.
+*Should the test fail if the element type or class has changed?*
+Using [**data attributes**](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes) in the test so we can use the corresponding attribute selector, using Angular's [**By**](https://angular.io/api/platform-browser/**By**).
+
+Certainly, there are several valid and elaborate approaches.
+
+**Triggering event handlers**
+It is a common task in tests to simulate user input like clicking, typing in text, moving pointers and pressing keys. From an Angular perspective, user input causes DOM events.
+The Component template registers event handlers using the schema (event)="handler($event)". In the test, we need to simulate an event to call these handlers.
+DebugElement has a useful method for firing events: triggerEventHandler.
+
+```ts
+reset.triggerEventHandler('click', {
+  /* … Event properties
+    preventDefault(): void {},
+    stopPropagation(): void {},
+    stopImmediatePropagation(): void {},
+    type: 'click',
+    target,
+    currentTarget: target,
+    bubbles: true,
+    cancelable: true,
+    button: 0 */
+});
+```
+
+This example fires a click event on the reset button. 
+Since the template contains (click)="reset()", the reset method of component will be called.
+
+triggerEventHandler does **not simulate event bubbling or any other effect a real event might have**.
+
+**Testing inputs**
+If you want to test a component under different conditions, you will probably have to change some of its @Input() values and check if it emits @Output()s when expected.
+
+```ts
+@Component(...)
+class MyComponent {
+  @Input() someInput: string;
+}
+/* ... */
+myComponent.someInput = 'foo';
+fixture.detectChanges(); // To update the view
+```
+
+If you are doing stuff in ngOnChanges, you will have to call it manually since **ngOnChanges is not called automatically in tests** during programmatic input changes.
+
+```ts
+myComponent.someInput = 'foo';
+myComponent.ngOnChanges({ someInput: { currentValue: 'foo' } } as SimpleChange);
+fixture.detectChanges();
+```
+
+**Testing outputs**
+```ts
+@Component(
+  template: `<button (click)="onClick()">`
+)
+export class MyComponent {
+  @Output() public myClick: EventEmitter<void> = new EventEmitter();
+
+  public onClick(): void {
+    this.myClick.emit();
+  }
+}
+/* ... */
+spyOn(component.myClick, 'emit');
+expect(component.myClick.emit).not.toHaveBeenCalled();
+fixture.debugElement.query(By.css('button')).nativeElement.click();
+expect(component.myClick.emit).toHaveBeenCalled(); // .toHaveBeenCalledWith(someValue);
+```
