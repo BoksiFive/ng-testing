@@ -202,7 +202,7 @@ ng test --include **/app.component.spec.ts
 ---
 <p>&nbsp;</p>
 
-## Testing components
+## Testing components 💡
 
 **Components**
 - renders the template into the HTML DOM
