@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
+/* This should be tested separately from Counter component but for sake of simplicity is test as part of it. */
+export function clamp(n: number, min: number, max: number) {
+  return Math.min(Math.max(min, n), max);
+}
+
 @Component({
   selector: 'app-counter',
   templateUrl: './counter.component.html',
@@ -26,18 +31,18 @@ export class CounterComponent {
   protected count = 0;
 
   public increment(): void {
-    this.count++;
+    this.count = clamp(++this.count, this.min, this.max);
     this.notify();
   }
 
   public decrement(): void {
-    this.count--;
+    this.count = clamp(--this.count, this.min, this.max);
     this.notify();
   }
 
   public reset(newCount: number): void {
-      this.count = newCount;
-      this.notify();
+    this.count = clamp(newCount, this.min, this.max);
+    this.notify();
   }
 
   private notify(): void {

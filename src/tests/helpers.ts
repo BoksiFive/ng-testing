@@ -24,6 +24,13 @@ export function findEl<T>(
   return queryByCss<T>(fixture, testIdSelector(testId));
 }
 
+export function findComponent<T>(
+  fixture: ComponentFixture<T>,
+  selector: string,
+): DebugElement {
+  return fixture.debugElement.query(By.css(selector));
+}
+
 export function click<T>(
   fixture: ComponentFixture<T>,
   testId: string
@@ -49,8 +56,22 @@ export function makeClickEvent(
   };
 }
 
-export function setInputValue<T>(fixture: ComponentFixture<T>, testId: string, value: string) {
+export function setInputValue<T>(
+  fixture: ComponentFixture<T>, 
+  testId: string, 
+  value: string
+) {
   const element = findEl(fixture, testId);
   element.nativeElement.value = value;
   element.nativeElement.dispatchEvent(new Event("input"));
+}
+
+export function setSelectValue<T>(
+  fixture: ComponentFixture<T>,
+  testId: string,
+  value: string,
+): void {
+  const element = findEl(fixture, testId);
+  element.nativeElement.value = value;
+  element.nativeElement.dispatchEvent(new Event("change"));
 }

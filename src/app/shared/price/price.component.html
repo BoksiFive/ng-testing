@@ -1,0 +1,8 @@
+<label for="currency">Currency</label>
+<select id="currency" data-testid="currency" [formControl]="currency">
+  <option value="EUR">EUR</option>
+  <option value="USD">USD</option>
+  <option value="GBP">GBP</option>
+</select>
+
+<h3 data-testid="price">Price: {{price$ | async }} {{ currency.value | priceSymbol }}</h3>

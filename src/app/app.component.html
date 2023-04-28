@@ -1,1 +1,2 @@
-<app-counter [startCount]="0"></app-counter>
+<app-counter [startCount]="count" [min]="0" [max]="5" (countChange)="onCountChange($event)"></app-counter>
+<app-price [price]="7" [count]="count"></app-price>

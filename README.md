@@ -202,7 +202,7 @@ ng test --include **/app.component.spec.ts
 ---
 <p>&nbsp;</p>
 
-## Testing components 💡
+## **Testing components** 💡
 
 **Components**
 - renders the template into the HTML DOM
@@ -229,7 +229,7 @@ TestBed.configureTestingModule({
 TestBed.compileComponents();
 ```
 
-## Rendering components
+## **Rendering components**
 **createComponent** returns a ComponentFixture, essentially a wrapper around the Component with useful testing tools. createComponent renders the Component into a div container element in the HTML DOM.
 
 ```ts
@@ -363,4 +363,44 @@ spyOn(component.myClick, 'emit');
 expect(component.myClick.emit).not.toHaveBeenCalled();
 fixture.debugElement.query(By.css('button')).nativeElement.click();
 expect(component.myClick.emit).toHaveBeenCalled(); // .toHaveBeenCalledWith(someValue);
+```
+
+## **Testing components with children**
+There are two fundamental ways to test Components with children:
+
+- A unit test using **shallow rendering**. The child Components are not rendered.
+- An integration test using **deep rendering**. The child Components are rendered.
+
+When configuring the testing Module, we can specify schemas to tell Angular how to deal with elements that are not handled by Directives or Components. We want Angular to simply ignore the elements. Therefore we use the NO_ERRORS_SCHEMA. This schema allows you to ignore the errors related to any unknown elements or properties in a template. **This turns the test into a unit test.**
+
+```ts
+await TestBed.configureTestingModule({
+  declarations: [HomeComponent],
+  schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
+```
+
+**Checking child inputs**
+How do we read the Input value? Each DebugElement has a properties object that contains DOM properties together with its values. In addition, it contains certain property bindings. **(The type is { [key: string]: any }).**
+
+In a unit test with shallow rendering, properties contains the Inputs of a child Component.
+```ts
+it('passes a input value', () => {
+  /* … */
+  const element = fixture.debugElement.query(By.css(selector));
+  expect(element.properties["inputName"]).toBe(...);
+});
+```
+
+**Checking child outputs**
+From the parent’s viewpoint, child event is simply an event. Shallow rendering means there is no Component instance and no EventEmitter. Angular only sees an element, app-my-component, with an event handler, (myChangeEvent)="handleChange($event)".
+In this setup, we can simulate the Output using the known triggerEventHandler method.
+
+```ts
+it('listens for changes', () => {
+  /* … */
+  const element fixture.debugElement.query(By.css(selector));
+  element.triggerEventHandler('myChange', /* ... */);
+  /* … */
+});
 ```
